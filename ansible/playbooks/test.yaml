@@ -1,0 +1,13 @@
+- name: Test
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+
+    - name: Ping the host
+      ansible.builtin.ping:
+
+    - name: Print the host nodename
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts['nodename'] }}"

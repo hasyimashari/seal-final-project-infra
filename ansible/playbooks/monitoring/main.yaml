@@ -1,0 +1,32 @@
+---
+- name: Monitoring installation
+  hosts: host0
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+
+    - name: Check instance machine
+      ansible.builtin.fail:
+        msg: "this ansible code only for redhat base distro"
+      when: ansible_os_family != "RedHat"
+
+    - name: Update package
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+  tasks:
+
+    - name: Install prometheus
+      ansible.builtin.include_tasks: prometheus-install.yaml
+
+    - name: Install node exporter
+      ansible.builtin.include_tasks: node-exporter-install.yaml
+
+    - name: Install grafana
+      ansible.builtin.include_tasks: grafan-install.yaml
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reexec: true
