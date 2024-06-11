@@ -35,9 +35,9 @@
         append: yes
       register: add_to_docker_group_result
 
-    - name: Include reset connection tasks
+    - name: Reset ssh connection
       when: add_to_docker_group_result.changed == true
-      ansible.builtin.include_tasks: reset_connection.yaml
+      ansible.builtin.meta: reset_connection
 
     - name: Check docker
       ansible.builtin.shell: docker --version
