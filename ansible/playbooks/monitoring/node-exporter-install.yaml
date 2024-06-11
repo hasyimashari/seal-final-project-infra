@@ -1,0 +1,71 @@
+- name: Add node_exporter group
+  ansible.builtin.group:
+    name: node_exporter
+    system: yes
+
+- name: Add node_exporter user
+  ansible.builtin.user:
+    name: node_exporter
+    group: node_exporter
+    system: yes
+    shell: /sbin/nologin
+
+- name: Download node_exporter binary
+  ansible.builtin.get_url:
+    url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+    dest: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+
+- name: Extract node_exporter binary
+  ansible.builtin.unarchive:
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}.tar.gz"
+    dest: /tmp/
+    remote_src: yes
+
+- name: Set node_exporter directory
+  ansible.builtin.set_fact:
+    node_exporter_dir: "node_exporter-{{ node_exporter_version }}.{{ node_exporter_arch }}"
+
+- name: Move node_exporter binary to /usr/local/bin
+  ansible.builtin.command:
+    cmd: mv /tmp/{{ node_exporter_dir }}/node_exporter /usr/local/bin/
+  args:
+    creates: /usr/local/bin/node_exporter
+
+- name: Create Node Exporter systemd service file
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/node-exporter.service
+    content: |
+      [Unit]
+      Description=Prometheus Node Exporter
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      User=node_exporter
+      Group=node_exporter
+      Type=simple
+      ExecStart=/usr/local/bin/node_exporter
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Enable and start node-exporter service
+  ansible.builtin.systemd:
+    name: node-exporter
+    state: started
+    enabled: true
+
+- name: Configure Prometheus to scrape node-exporter
+  ansible.builtin.lineinfile:
+    path: "/etc/prometheus/prometheus.yml"
+    insertafter: "static_configs:"
+    line: '      - targets: ["localhost:9100"]'
+    regexp: '      - targets: \["localhost:9100"\]'
+    state: present
+
+- name: Restart Prometheus
+  ansible.builtin.systemd:
+    name: prometheus
+    state: restarted

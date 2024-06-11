@@ -4,6 +4,23 @@
   become: true
   gather_facts: true
 
+  vars:
+    prometheus_version: "2.53.0-rc.0"
+    prometheus_amd64: "linux-amd64"
+    prometheus_arm64: "linux-arm64"
+    prometheus_user: "prometheus"
+    prometheus_group: "prometheus"
+
+    node_exporter_version: "1.8.1"
+    node_exporter_amd64: "linux-amd64"
+    node_exporter_arm64: "linux-arm64"
+    node_exporter_user: "node-exporter"
+    node_exporter_group: "node-exporter"
+
+    grafana_version: "11.0.0-1"
+    grafana_amd64: "x86_64"
+    grafana_arm64: "aarch64"
+
   pre_tasks:
 
     - name: Check instance machine
@@ -16,6 +33,18 @@
         name: "*"
         state: latest
 
+    - name: Set prometheus arch
+      ansible.builtin.set_fact:
+        prometheus_arch: "{{ prometheus_arm64 if ansible_facts['machine'] == 'aarch64' else prometheus_amd64 }}"
+
+    - name: Set node exporter arch
+      ansible.builtin.set_fact:
+        node_exporter_arch: "{{ node_exporter_arm64 if ansible_facts['machine'] == 'aarch64' else node_exporter_amd64 }}"
+
+    - name: Set grafana arch
+      ansible.builtin.set_fact:
+        grafana_arch: "{{ grafana_arm64 if ansible_facts['machine'] == 'aarch64' else grafana_amd64 }}"
+
   tasks:
 
     - name: Install prometheus
@@ -25,8 +54,12 @@
       ansible.builtin.include_tasks: node-exporter-install.yaml
 
     - name: Install grafana
-      ansible.builtin.include_tasks: grafan-install.yaml
+      ansible.builtin.include_tasks: grafana-install.yaml
+
+    - name: Pause for systemd to restart
+      ansible.builtin.pause:
+        seconds: 15
 
     - name: Reload systemd daemon
       ansible.builtin.systemd:
-        daemon_reexec: true
+        daemon_reload: true

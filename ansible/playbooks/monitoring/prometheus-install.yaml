@@ -1,0 +1,104 @@
+- name: Add Prometheus group
+  ansible.builtin.group:
+    name: "{{ prometheus_group }}"
+    system: yes
+
+- name: Add Prometheus user
+  ansible.builtin.user:
+    name: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    system: yes
+    shell: /sbin/nologin
+
+- name: Download Prometheus binary
+  ansible.builtin.get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
+    dest: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
+
+- name: Extract Prometheus binary
+  ansible.builtin.unarchive:
+    src: "/tmp/prometheus-{{ prometheus_version }}.{{ prometheus_arch }}.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+
+- name: Set prometheus directory
+  ansible.builtin.set_fact:
+    prometheus_dir: "prometheus-{{ prometheus_version }}.{{ prometheus_arch }}"
+
+- name: Move Prometheus binary to /usr/local/bin
+  ansible.builtin.command:
+    cmd: mv /tmp/{{ prometheus_dir }}/prometheus /usr/local/bin/
+  args:
+    creates: /usr/local/bin/prometheus
+
+- name: Move promtool binary to /usr/local/bin
+  ansible.builtin.command:
+    cmd: mv /tmp/{{ prometheus_dir }}/promtool /usr/local/bin/
+  args:
+    creates: /usr/local/bin/promtool
+
+- name: Create Prometheus config directory
+  ansible.builtin.file:
+    path: /etc/prometheus
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: '0755'
+
+- name: Move consoles directory to /etc/prometheus
+  ansible.builtin.command:
+    cmd: mv /tmp/{{ prometheus_dir }}/consoles /etc/prometheus
+  args:
+    creates: /etc/prometheus/consoles
+
+- name: Move console_libraries directory to /etc/prometheus
+  ansible.builtin.command:
+    cmd: mv /tmp/{{ prometheus_dir }}/console_libraries /etc/prometheus
+  args:
+    creates: /etc/prometheus/console_libraries
+
+- name: Create Prometheus data directory
+  ansible.builtin.file:
+    path: /var/lib/prometheus
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: '0755'
+
+- name: Move prometheus.yml to /etc/prometheus
+  ansible.builtin.command:
+    cmd: mv /tmp/{{ prometheus_dir }}/prometheus.yml /etc/prometheus
+  args:
+    creates: /etc/prometheus/prometheus.yml
+
+- name: Create Prometheus systemd service file
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/prometheus.service
+    content: |
+      [Unit]
+      Description=Prometheus
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      User={{ prometheus_user }}
+      Group={{ prometheus_group }}
+      Type=simple
+      ExecStart=/usr/local/bin/prometheus \
+        --config.file=/etc/prometheus/prometheus.yml \
+        --storage.tsdb.path=/var/lib/prometheus/ \
+        --web.console.templates=/etc/prometheus/consoles \
+        --web.console.libraries=/etc/prometheus/console_libraries
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+    owner: root
+    group: root
+
+- name: Enable and start Prometheus service
+  ansible.builtin.systemd:
+    name: prometheus
+    state: started
+    enabled: true
