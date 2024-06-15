@@ -1,0 +1,16 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+
+keyed_groups:
+  - key: tags.Name
+    separator: ""
+  #   prefix: Web-Server_
+
+hostnames:
+  - ip-address
+  - dns-name
+  - tag:Name
+
+compose:
+  ansible_host: ip_address

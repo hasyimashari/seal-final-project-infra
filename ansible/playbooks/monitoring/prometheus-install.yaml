@@ -65,11 +65,27 @@
     group: "{{ prometheus_group }}"
     mode: '0755'
 
-- name: Move prometheus.yml to /etc/prometheus
-  ansible.builtin.command:
-    cmd: mv /tmp/{{ prometheus_dir }}/prometheus.yml /etc/prometheus
-  args:
-    creates: /etc/prometheus/prometheus.yml
+- name: Create prometheus.yaml with auto discovery
+  ansible.builtin.copy:
+    dest: /etc/prometheus/prometheus.yml
+    content: |
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+
+      scrape_configs:
+        - job_name: 'node_exporter'
+          ec2_sd_configs:
+            - region: us-east-1
+          relabel_configs:
+            - source_labels: [__meta_ec2_tag_Name]
+              regex: 'web-server-teman-soal'
+              action: keep
+            - source_labels: [__meta_ec2_public_ip]
+              target_label: __address__
+              replacement: '$1:9100'
+    owner: root
+    group: root
 
 - name: Create Prometheus systemd service file
   ansible.builtin.copy:
@@ -84,6 +100,10 @@
       User={{ prometheus_user }}
       Group={{ prometheus_group }}
       Type=simple
+      Environment={{ acccess_key }}
+      Environment={{ secret_key }}
+      Environment={{ session_token }}
+      Environment="AWS_DEFAULT_REGION=us-east-1"
       ExecStart=/usr/local/bin/prometheus \
         --config.file=/etc/prometheus/prometheus.yml \
         --storage.tsdb.path=/var/lib/prometheus/ \

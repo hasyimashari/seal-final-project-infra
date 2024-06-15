@@ -1,6 +1,6 @@
 ---
 - name: Monitoring installation
-  hosts: host0
+  hosts: monitoring_server
   become: true
   gather_facts: true
 
@@ -11,35 +11,29 @@
     prometheus_user: "prometheus"
     prometheus_group: "prometheus"
 
-    node_exporter_version: "1.8.1"
-    node_exporter_amd64: "linux-amd64"
-    node_exporter_arm64: "linux-arm64"
-    node_exporter_user: "node-exporter"
-    node_exporter_group: "node-exporter"
-
     grafana_version: "11.0.0-1"
     grafana_amd64: "x86_64"
     grafana_arm64: "aarch64"
+
+    acccess_key: '"AWS_ACCESS_KEY_ID=<>"'
+    secret_key: '"AWS_SECRET_ACCESS_KEY=<>"'
+    session_token: '"AWS_SESSION_TOKEN=<>"'
 
   pre_tasks:
 
     - name: Check instance machine
       ansible.builtin.fail:
-        msg: "this ansible code only for redhat base distro"
+        msg: "this ansible code only for redhat ecosystem distro"
       when: ansible_os_family != "RedHat"
 
     - name: Update package
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
         name: "*"
         state: latest
 
     - name: Set prometheus arch
       ansible.builtin.set_fact:
         prometheus_arch: "{{ prometheus_arm64 if ansible_facts['machine'] == 'aarch64' else prometheus_amd64 }}"
-
-    - name: Set node exporter arch
-      ansible.builtin.set_fact:
-        node_exporter_arch: "{{ node_exporter_arm64 if ansible_facts['machine'] == 'aarch64' else node_exporter_amd64 }}"
 
     - name: Set grafana arch
       ansible.builtin.set_fact:
@@ -49,9 +43,6 @@
 
     - name: Install prometheus
       ansible.builtin.include_tasks: prometheus-install.yaml
-
-    - name: Install node exporter
-      ansible.builtin.include_tasks: node-exporter-install.yaml
 
     - name: Install grafana
       ansible.builtin.include_tasks: grafana-install.yaml
