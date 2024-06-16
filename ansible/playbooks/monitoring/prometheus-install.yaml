@@ -85,11 +85,6 @@
             - source_labels: [__meta_ec2_private_ip]
               target_label: __address__
               replacement: '$1:9100'
-          metric_relabel_configs:
-            - source_labels: [__address__]
-              target_label: instance
-              action: keep
-              regex: '.+'
 
     owner: root
     group: root
