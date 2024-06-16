@@ -13,3 +13,7 @@ ansible-inventory --graph
 ```bash
 ansible-playbook ./playbooks/monitoring/main.yaml
 ```
+
+### note
+
+in main.yaml there is secret key that will be use by prometheus service to auto discovery instance, so fill that secret with your secret key
