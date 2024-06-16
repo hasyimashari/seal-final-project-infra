@@ -18,12 +18,12 @@
 
     - name: Stop the existing container
       ansible.builtin.command:
-        cmd: "docker stop {{ image_name }}:{{ old_tag }}"
+        cmd: "docker stop {{ container_name }}"
       ignore_errors: yes
 
     - name: Remove the existing container
       ansible.builtin.command:
-        cmd: "docker rm {{ image_name }}:{{ old_tag }}"
+        cmd: "docker rm {{ container_name }}"
       ignore_errors: yes
 
     - name: Run the container with the new image
