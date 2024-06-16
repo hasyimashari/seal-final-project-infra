@@ -1,6 +1,6 @@
 ---
 - name: Monitoring installation
-  hosts: monitoring_server
+  hosts: monitoring
   become: true
   gather_facts: true
 
@@ -15,9 +15,9 @@
     grafana_amd64: "x86_64"
     grafana_arm64: "aarch64"
 
-    acccess_key: '"AWS_ACCESS_KEY_ID=<>"'
-    secret_key: '"AWS_SECRET_ACCESS_KEY=<>"'
-    session_token: '"AWS_SESSION_TOKEN=<>"'
+    acccess_key: '"AWS_ACCESS_KEY_ID=ASIAVMHQALLNFCESORP4"'
+    secret_key: '"AWS_SECRET_ACCESS_KEY=WE9UJng8XWGgxQw3EetUxjp1kFxNZqqkKEtCMXDo"'
+    session_token: '"AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEDgaCXVzLXdlc3QtMiJHMEUCIQCQA1naU+OCuM5ZNrKIGrdAbSK7e/Bu+7t+vTLRJHsFCQIgDzBO3JrTHRnJS3fZ7Sq9w2czAKdvApc6+hDDMH8gna8qtgII0f//////////ARACGgwzNjk4NzA1MjcxOTQiDDxucb3llOOgFSANhyqKAhMo0NEtDhpZw8KbUpO5Q67Vc6iYFU7yYm5to4nRIBx8qWKOhRz+fZ4fmAHOm+VmY5e/p/Ym0qH/D0a9L5dAmCSG5zB81VFBS+sVCS7kduEbcrgU48TKK4fri5Tb24m2ayvL7MF7cqk4CTrKvg7k6CI2BVc/mN3FlE4AYSUtP3anuq6fh6482itHirH7I98hQQUTUGrLQYEQ8qD+9HL/evXBoSuUlhKUeyx+AywNZYkPiL7G+U3TfBggx2XgXtHNM7b3TFfnBB8wmgErlguCgkx/+yNgk1fy87uvpPnVkbNUTSSx7SKxXYMhkWNZyl/oVu+eGsmxewAIXexTKmv9BS6lplcPj+wVDGodMKirurMGOp0BfCtNhftMUwoOre9cZomWKFbaUfExtZSWWccvHoXy9mDGWa0/JSK+zhYY2e+QbCMiViESqnyiaYq4Va9THOQhINF4kSAoa/h28dhcdlpq6ljS115xlpMU6OsJ5KudgvKIb5n1xQWGMQY2vHbVuP31JwH6/STaMZFAJhG6nXzyhq1TTZVqWcX+ToqQ+ykXtJz9A1t9KoFzLFzxV0a5sw=="'
 
   pre_tasks:
 
