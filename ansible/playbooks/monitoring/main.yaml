@@ -15,10 +15,6 @@
     grafana_amd64: "x86_64"
     grafana_arm64: "aarch64"
 
-    acccess_key: ''
-    secret_key: ''
-    session_token: ''
-
   pre_tasks:
 
     - name: Check instance machine
