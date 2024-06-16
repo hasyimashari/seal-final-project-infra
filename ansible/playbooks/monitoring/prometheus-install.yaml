@@ -102,10 +102,6 @@
       User={{ prometheus_user }}
       Group={{ prometheus_group }}
       Type=simple
-      Environment={{ acccess_key }}
-      Environment={{ secret_key }}
-      Environment={{ session_token }}
-      Environment="AWS_DEFAULT_REGION=us-east-1"
       ExecStart=/usr/local/bin/prometheus \
         --config.file=/etc/prometheus/prometheus.yml \
         --storage.tsdb.path=/var/lib/prometheus/ \
