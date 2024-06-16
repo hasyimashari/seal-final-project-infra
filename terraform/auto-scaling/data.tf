@@ -46,6 +46,6 @@ data "template_file" "user_data_web_server" {
     systemctl enable --now node-exporter.service
 
     docker pull adhamfaraitodi/temansoal:1.0.0
-    docker run -itd -p 80:3000 adhamfaraitodi/temansoal:1.0.0
+    docker container run -itd --name temansoal -p 80:3000 adhamfaraitodi/temansoal:1.0.0
   EOF
 }
