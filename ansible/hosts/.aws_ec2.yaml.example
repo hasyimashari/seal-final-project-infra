@@ -5,7 +5,7 @@ regions:
 keyed_groups:
   - key: tags.Name
     separator: ""
-  #   prefix: Web-Server_
+    prefix: Web-Server_
 
 hostnames:
   - ip-address
