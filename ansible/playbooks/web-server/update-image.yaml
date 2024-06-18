@@ -7,13 +7,11 @@
   vars:
     image_name: "adhamfaraitodi/temansoal"
     container_name: "temansoal"
-    old_tag: "1.0.0"
-    new_tag: "1.0.0"
 
   tasks:
     - name: Pull the new Docker image
       ansible.builtin.command:
-        cmd: "docker pull {{ image_name }}:{{ new_tag }}"
+        cmd: "docker pull {{ image_name }}:latest"
       register: pull_result
 
     - name: Stop the existing container
@@ -28,4 +26,4 @@
 
     - name: Run the container with the new image
       ansible.builtin.command:
-        cmd: docker container run -itd --name {{ container_name }} -p 80:3000 {{ image_name }}:{{ new_tag }}
+        cmd: docker container run -itd --name {{ container_name }} -p 80:3000 {{ image_name }}:latest
